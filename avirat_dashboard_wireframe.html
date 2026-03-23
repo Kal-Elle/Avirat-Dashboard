@@ -1,0 +1,341 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans,system-ui,sans-serif)}
+.shell{display:flex;height:680px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;background:var(--color-background-primary)}
+.sidebar{width:200px;min-width:200px;border-right:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);display:flex;flex-direction:column}
+.sidebar-logo{padding:16px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.sidebar-logo span{color:var(--color-text-info)}
+.nav-item{padding:9px 16px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;border-left:2px solid transparent;transition:all .15s}
+.nav-item:hover{background:var(--color-background-primary);color:var(--color-text-primary)}
+.nav-item.active{background:var(--color-background-primary);color:var(--color-text-info);border-left:2px solid var(--color-text-info);font-weight:500}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:0 20px;height:44px;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.badge{font-size:11px;padding:3px 8px;border-radius:4px;background:var(--color-background-info);color:var(--color-text-info)}
+.layer-tabs{display:flex;gap:4px;padding:12px 20px 0;border-bottom:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+.tab{font-size:12px;padding:6px 14px;cursor:pointer;border-bottom:2px solid transparent;color:var(--color-text-secondary);margin-bottom:-0.5px;transition:all .15s}
+.tab:hover{color:var(--color-text-primary)}
+.tab.active{color:var(--color-text-info);border-bottom:2px solid var(--color-text-info);font-weight:500}
+.content{flex:1;overflow-y:auto;padding:20px}
+.panel{display:none}
+.panel.active{display:block}
+
+.metric-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:20px}
+.metric-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.metric-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:6px}
+.metric-value{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.metric-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+
+.section-title{font-size:12px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+
+.agent-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:20px}
+.agent-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px;background:var(--color-background-primary)}
+.agent-name{font-size:11px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px}
+.score-bar-bg{height:4px;background:var(--color-border-tertiary);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.score-bar{height:4px;border-radius:2px;transition:width .4s}
+.score-val{font-size:13px;font-weight:500}
+.score-sub{font-size:10px;color:var(--color-text-secondary)}
+
+.conflict-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 8px;border-radius:4px;background:var(--color-background-warning);color:var(--color-text-warning)}
+.pass-badge{background:var(--color-background-success);color:var(--color-text-success)}
+
+.two-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px}
+.card-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px}
+
+.funnel-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.funnel-label{font-size:11px;color:var(--color-text-secondary);width:80px;flex-shrink:0}
+.funnel-bar-bg{flex:1;height:8px;background:var(--color-background-secondary);border-radius:4px;overflow:hidden}
+.funnel-bar{height:8px;border-radius:4px;background:#378ADD}
+.funnel-val{font-size:11px;color:var(--color-text-secondary);width:32px;text-align:right;flex-shrink:0}
+
+.module-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:20px}
+.module-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px;cursor:pointer;transition:border-color .15s}
+.module-card:hover{border-color:var(--color-border-primary)}
+.module-card.active-module{border-color:var(--color-text-info);background:var(--color-background-info)}
+.module-name{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.module-desc{font-size:11px;color:var(--color-text-secondary)}
+.module-detail{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:14px;margin-bottom:16px;display:none}
+.module-detail.show{display:block}
+
+.chat-wrap{display:flex;gap:12px}
+.chat-panel{flex:1;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;display:flex;flex-direction:column}
+.chat-header{padding:10px 14px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px;font-weight:500;background:var(--color-background-secondary)}
+.chat-messages{flex:1;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:300px}
+.msg-user{align-self:flex-end;max-width:80%;background:var(--color-background-info);color:var(--color-text-info);padding:8px 12px;border-radius:10px 10px 2px 10px;font-size:12px}
+.msg-agent{align-self:flex-start;max-width:85%;background:var(--color-background-secondary);color:var(--color-text-primary);padding:8px 12px;border-radius:10px 10px 10px 2px;font-size:12px}
+.chat-input-row{padding:10px;border-top:0.5px solid var(--color-border-tertiary);display:flex;gap:8px;align-items:center}
+.chat-input{flex:1;padding:7px 10px;font-size:12px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);outline:none}
+.chat-input:focus{border-color:var(--color-border-info)}
+.send-btn{padding:7px 14px;font-size:12px;background:var(--color-text-info);color:#fff;border:none;border-radius:var(--border-radius-md);cursor:pointer}
+.rules-panel{width:160px;flex-shrink:0}
+.rule-item{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 10px;margin-bottom:8px;font-size:11px;color:var(--color-text-secondary)}
+.rule-item b{display:block;font-size:11px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+
+.side-panel{width:200px;flex-shrink:0;border-left:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);padding:14px;display:flex;flex-direction:column;gap:10px}
+.sp-title{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.sp-metric{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.sp-metric:last-child{border-bottom:none}
+.sp-label{font-size:11px;color:var(--color-text-secondary)}
+.sp-val{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+
+.workflow-layout{display:flex;gap:0;height:100%}
+.wf-content{flex:1;overflow-y:auto}
+</style>
+
+<div class="shell">
+  <div class="sidebar">
+    <div class="sidebar-logo">Avirat <span>Talent</span></div>
+    <div style="padding:12px 0;flex:1">
+      <div class="nav-item" onclick="setNav('pipeline')">Pipeline</div>
+      <div class="nav-item" onclick="setNav('candidates')">Candidates</div>
+      <div class="nav-item" onclick="setNav('schedule')">Schedule</div>
+      <div class="nav-item" onclick="setNav('decisions')">Decisions</div>
+      <div class="nav-item active" id="nav-analytics" onclick="setNav('analytics')">Analytics</div>
+    </div>
+    <div style="padding:12px 16px;border-top:0.5px solid var(--color-border-tertiary)">
+      <div style="font-size:11px;color:var(--color-text-secondary)">Himanshu Vohra</div>
+      <div style="font-size:10px;color:var(--color-text-tertiary)">Product Lead</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title" id="topbar-title">Analytics</span>
+      <div class="topbar-right">
+        <span class="badge">All roles · Last 30 days</span>
+      </div>
+    </div>
+
+    <div class="layer-tabs">
+      <div class="tab active" id="tab-l1" onclick="setLayer('l1')">Layer 1 — Workflow panels</div>
+      <div class="tab" id="tab-l2" onclick="setLayer('l2')">Layer 2 — Analytics home</div>
+      <div class="tab" id="tab-l3" onclick="setLayer('l3')">Layer 3 — Conversational agent</div>
+    </div>
+
+    <div class="content">
+
+      <!-- LAYER 1 -->
+      <div class="panel active" id="panel-l1">
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:16px">Viewing: WF-06 Consensus Decision — Priya Sharma · Senior Data Engineer</div>
+        <div class="workflow-layout">
+          <div class="wf-content" style="padding-right:12px">
+            <div class="section-title" style="margin-bottom:12px">Agent evaluation scores</div>
+            <div class="agent-grid">
+              <div class="agent-card">
+                <div class="agent-name">Skills</div>
+                <div class="score-bar-bg"><div class="score-bar" style="width:82%;background:#378ADD"></div></div>
+                <div class="score-val" style="color:#0C447C">82</div>
+                <div class="score-sub">Strong match</div>
+              </div>
+              <div class="agent-card">
+                <div class="agent-name">Behavioral</div>
+                <div class="score-bar-bg"><div class="score-bar" style="width:71%;background:#378ADD"></div></div>
+                <div class="score-val" style="color:#0C447C">71</div>
+                <div class="score-sub">Clear signals</div>
+              </div>
+              <div class="agent-card">
+                <div class="agent-name">Stability</div>
+                <div class="score-bar-bg"><div class="score-bar" style="width:58%;background:#EF9F27"></div></div>
+                <div class="score-val" style="color:#854F0B">58</div>
+                <div class="score-sub">Review gap</div>
+              </div>
+              <div class="agent-card">
+                <div class="agent-name">Risk</div>
+                <div class="score-bar-bg"><div class="score-bar" style="width:34%;background:#E24B4A"></div></div>
+                <div class="score-val" style="color:#A32D2D">34</div>
+                <div class="score-sub">Flag raised</div>
+              </div>
+              <div class="agent-card">
+                <div class="agent-name">History</div>
+                <div class="score-bar-bg"><div class="score-bar" style="width:50%;background:#888780"></div></div>
+                <div class="score-val" style="color:#444441">50</div>
+                <div class="score-sub">No prior record</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+              <div style="font-size:12px;color:var(--color-text-secondary)">Composite score</div>
+              <div style="font-size:22px;font-weight:500;color:var(--color-text-primary)">63</div>
+              <div class="conflict-badge">Conflict flag · Skills vs Risk divergence &gt;35</div>
+            </div>
+            <div style="background:var(--color-background-warning);border-radius:var(--border-radius-md);padding:10px 12px;font-size:11px;color:var(--color-text-warning);margin-bottom:16px">
+              HITL required — conflict flag active. Recruiter review within 24 hrs.
+            </div>
+            <div style="font-size:11px;color:var(--color-text-secondary)">Recommendation: <span style="font-weight:500;color:var(--color-text-warning)">Review Required</span></div>
+          </div>
+          <div class="side-panel">
+            <div>
+              <div class="sp-title">This role · context</div>
+              <div class="sp-metric"><span class="sp-label">Score dist avg</span><span class="sp-val">69</span></div>
+              <div class="sp-metric"><span class="sp-label">Conflict flag rate</span><span class="sp-val">18%</span></div>
+              <div class="sp-metric"><span class="sp-label">Confidence avg</span><span class="sp-val">0.74</span></div>
+              <div class="sp-metric"><span class="sp-label">Pass rate</span><span class="sp-val">41%</span></div>
+            </div>
+            <div>
+              <div class="sp-title">Override history · HM</div>
+              <div class="sp-metric"><span class="sp-label">This HM</span><span class="sp-val">2 of 9</span></div>
+              <div class="sp-metric"><span class="sp-label">This role</span><span class="sp-val">14%</span></div>
+              <div class="sp-metric"><span class="sp-label">SLA on-time</span><span class="sp-val">88%</span></div>
+            </div>
+            <div style="font-size:10px;color:var(--color-text-tertiary);margin-top:auto">Layer 1 · WF-06 panel · live data</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAYER 2 -->
+      <div class="panel" id="panel-l2">
+        <div class="section-title">Select a module</div>
+        <div class="module-grid">
+          <div class="module-card" onclick="setModule('funnel')">
+            <div class="module-name">Pipeline funnel</div>
+            <div class="module-desc">Volume · drop-off by stage</div>
+          </div>
+          <div class="module-card" onclick="setModule('screening')">
+            <div class="module-name">Screening quality</div>
+            <div class="module-desc">Agent scores · conflict rate</div>
+          </div>
+          <div class="module-card" onclick="setModule('engagement')">
+            <div class="module-name">Candidate engagement</div>
+            <div class="module-desc">Chatbot · drop-off · resolution</div>
+          </div>
+          <div class="module-card" onclick="setModule('governance')">
+            <div class="module-name">Governance</div>
+            <div class="module-desc">Override rate · SLA · policy</div>
+          </div>
+          <div class="module-card" onclick="setModule('qoh')">
+            <div class="module-name">Quality of hire</div>
+            <div class="module-desc">QoH index · attrition · loop</div>
+          </div>
+        </div>
+
+        <div class="module-detail" id="detail-funnel">
+          <div class="card-title">Pipeline funnel · all active roles · last 30 days</div>
+          <div class="funnel-row"><span class="funnel-label">Applied</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:100%"></div></div><span class="funnel-val">847</span></div>
+          <div class="funnel-row"><span class="funnel-label">Parsed</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:94%"></div></div><span class="funnel-val">796</span></div>
+          <div class="funnel-row"><span class="funnel-label">Screened</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:86%"></div></div><span class="funnel-val">729</span></div>
+          <div class="funnel-row"><span class="funnel-label">Shortlisted</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:38%"></div></div><span class="funnel-val">321</span></div>
+          <div class="funnel-row"><span class="funnel-label">Interviewed</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:22%"></div></div><span class="funnel-val">189</span></div>
+          <div class="funnel-row"><span class="funnel-label">Decision</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:14%"></div></div><span class="funnel-val">118</span></div>
+          <div class="funnel-row"><span class="funnel-label">Offered</span><div class="funnel-bar-bg"><div class="funnel-bar" style="width:7%"></div></div><span class="funnel-val">61</span></div>
+        </div>
+
+        <div class="module-detail" id="detail-screening">
+          <div class="metric-row">
+            <div class="metric-card"><div class="metric-label">Avg composite score</div><div class="metric-value">68</div><div class="metric-sub">+3 vs prev month</div></div>
+            <div class="metric-card"><div class="metric-label">Conflict flag rate</div><div class="metric-value">16%</div><div class="metric-sub">Stable</div></div>
+            <div class="metric-card"><div class="metric-label">Shortlist pass rate</div><div class="metric-value">44%</div><div class="metric-sub">of screened</div></div>
+            <div class="metric-card"><div class="metric-label">Avg confidence</div><div class="metric-value">0.71</div><div class="metric-sub">Across all roles</div></div>
+          </div>
+        </div>
+
+        <div class="module-detail" id="detail-engagement">
+          <div class="metric-row">
+            <div class="metric-card"><div class="metric-label">Resolution rate</div><div class="metric-value">81%</div><div class="metric-sub">Target ≥78%</div></div>
+            <div class="metric-card"><div class="metric-label">Drop-off rate</div><div class="metric-value">22%</div><div class="metric-sub">Q3 highest at 38%</div></div>
+            <div class="metric-card"><div class="metric-label">Escalation rate</div><div class="metric-value">8%</div><div class="metric-sub">Within SLA</div></div>
+            <div class="metric-card"><div class="metric-label">Avg session</div><div class="metric-value">4.2m</div><div class="metric-sub">vs 3.8m prev</div></div>
+          </div>
+        </div>
+
+        <div class="module-detail" id="detail-governance">
+          <div class="metric-row">
+            <div class="metric-card"><div class="metric-label">Override rate</div><div class="metric-value">19%</div><div class="metric-sub">Org avg</div></div>
+            <div class="metric-card"><div class="metric-label">Policy trigger rate</div><div class="metric-value">11%</div><div class="metric-sub">of decisions</div></div>
+            <div class="metric-card"><div class="metric-label">SLA compliance</div><div class="metric-value">91%</div><div class="metric-sub">Within 18 hrs</div></div>
+            <div class="metric-card"><div class="metric-label">Bias annotations</div><div class="metric-value">4</div><div class="metric-sub">This month</div></div>
+          </div>
+        </div>
+
+        <div class="module-detail" id="detail-qoh">
+          <div class="metric-row">
+            <div class="metric-card"><div class="metric-label">Quality of hire index</div><div class="metric-value">7.2</div><div class="metric-sub">Out of 10</div></div>
+            <div class="metric-card"><div class="metric-label">Early attrition rate</div><div class="metric-value">8%</div><div class="metric-sub">6-month window</div></div>
+            <div class="metric-card"><div class="metric-label">Score-perf correlation</div><div class="metric-value">r=0.63</div><div class="metric-sub">Skills dimension</div></div>
+            <div class="metric-card"><div class="metric-label">Model version</div><div class="metric-value">v1.4</div><div class="metric-sub">Deployed Mar 2026</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAYER 3 -->
+      <div class="panel" id="panel-l3">
+        <div class="chat-wrap">
+          <div class="chat-panel">
+            <div class="chat-header">Avirat assistant · context: Analytics Home · all roles</div>
+            <div class="chat-messages" id="chat-msgs">
+              <div class="msg-agent">Hi. What would you like to know about the pipeline?</div>
+            </div>
+            <div class="chat-input-row">
+              <input class="chat-input" id="chat-in" placeholder="Ask about any metric..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+              <button class="send-btn" onclick="sendMsg()">Send</button>
+            </div>
+          </div>
+          <div class="rules-panel">
+            <div class="rule-item"><b>Context-aware</b>Reads current screen on open</div>
+            <div class="rule-item"><b>Consistent</b>Same numbers as dashboard</div>
+            <div class="rule-item"><b>Never estimates</b>Says so if data missing</div>
+            <div class="rule-item"><b>Read-only</b>Cannot trigger actions</div>
+            <div class="rule-item"><b>All personas</b>Persona-scoped results</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const replies = {
+  'override rate': 'Override rate this month is 19% across all hiring managers. Priya Sharma has the highest at 27% (3 of 11 decisions). Org avg is 14%.',
+  'drop-off': 'Highest chatbot drop-off this week: Senior Data Engineer at 38% (question 3), Product Manager at 31%, DevOps Lead at 28%.',
+  'shortlist': 'Shortlisting pass rate is 44% across active roles. Engineering roles avg 38%, Product roles avg 51%.',
+  'quality of hire': 'Quality of Hire Index for the March cohort is 7.2 out of 10. Up from 6.8 in Q4 2025. Early attrition is 8% within 6 months.',
+  'attrition': 'Early attrition rate is 8% for hires in the last 6 months — well below the 15% escalation threshold. No high-attrition flag active.',
+  'sla': 'SLA compliance for HM reviews is 91% within 18 hours. 9 decisions exceeded SLA this month — 6 escalated to TA Manager.',
+  'conflict': 'Conflict flag rate is 16% across all WF-06 evaluations this month. Most common trigger: Skills vs Risk divergence above 35 points.',
+  'composite': 'Average composite score across all roles is 68 this month, up 3 points versus last month. Engineering roles average 65, Product roles 72.',
+};
+
+function sendMsg() {
+  const input = document.getElementById('chat-in');
+  const val = input.value.trim();
+  if (!val) return;
+  const msgs = document.getElementById('chat-msgs');
+  const uMsg = document.createElement('div');
+  uMsg.className = 'msg-user';
+  uMsg.textContent = val;
+  msgs.appendChild(uMsg);
+  input.value = '';
+  setTimeout(() => {
+    const aMsg = document.createElement('div');
+    aMsg.className = 'msg-agent';
+    const key = Object.keys(replies).find(k => val.toLowerCase().includes(k));
+    aMsg.textContent = key ? replies[key] : "I don't have that specific data point available right now. Try asking about override rate, drop-off, shortlisting, quality of hire, attrition, SLA compliance, conflict flags, or composite scores.";
+    msgs.appendChild(aMsg);
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 400);
+}
+
+function setLayer(id) {
+  ['l1','l2','l3'].forEach(l => {
+    document.getElementById('tab-'+l).classList.toggle('active', l===id);
+    document.getElementById('panel-'+l).classList.toggle('active', l===id);
+  });
+}
+
+function setModule(id) {
+  document.querySelectorAll('.module-card').forEach((c,i) => {
+    const ids = ['funnel','screening','engagement','governance','qoh'];
+    c.classList.toggle('active-module', ids[i]===id);
+  });
+  document.querySelectorAll('.module-detail').forEach(d => d.classList.remove('show'));
+  const det = document.getElementById('detail-'+id);
+  if (det) det.classList.add('show');
+}
+
+function setNav(n) {
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('topbar-title').textContent = n.charAt(0).toUpperCase()+n.slice(1);
+}
+</script>
